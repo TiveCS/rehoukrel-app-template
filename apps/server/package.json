@@ -4,16 +4,33 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "auth:secret": "openssl rand -base64 32",
+    "auth:generate": "bun x @better-auth/cli@latest generate --config ./src/internal/auth/index.ts --output ./src/infra/data/schemas/auth.schema.ts -y",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:pull": "drizzle-kit pull",
+    "db:reset": "bun run db:migrate --reset"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.0",
+    "@elysiajs/openapi": "^1.4.12",
+    "@paralleldrive/cuid2": "^3.0.4",
+    "@t3-oss/env-core": "catalog:",
+    "@tivecs/core": "catalog:",
+    "better-auth": "^1.4.7",
+    "drizzle-orm": "^0.45.1",
     "elysia": "catalog:",
-    "zod": "catalog:",
-    "@tivecs/core": "catalog:"
+    "pg": "^8.16.3",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@types/pg": "^8.16.0",
     "bun-types": "latest",
-    "@biomejs/biome": "catalog:"
+    "drizzle-kit": "^0.31.8"
   },
   "exports": {
     ".": {

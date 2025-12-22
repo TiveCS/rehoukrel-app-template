@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "server": "workspace:^",
+    "@t3-oss/env-core": "catalog:",
     "@elysiajs/eden": "latest",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.7.0",
