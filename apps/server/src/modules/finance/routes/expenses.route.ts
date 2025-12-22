@@ -4,7 +4,7 @@ import {
   zodIsoDateSchema,
 } from "@tivecs/core";
 import Elysia from "elysia";
-import { authMacro } from "@/internal/auth/auth.setup";
+import { authMacro } from "@/internal/setups";
 import {
   deleteExpenseUsecase,
   editExpenseUsecase,

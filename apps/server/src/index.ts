@@ -1,5 +1,3 @@
-import cors from "@elysiajs/cors";
-import openapi from "@elysiajs/openapi";
 import {
   isFailureResult,
   isSuccessResult,
@@ -7,33 +5,14 @@ import {
   validationError,
 } from "@tivecs/core";
 import { Elysia, status } from "elysia";
-import z from "zod/v4";
 import { env } from "../env";
-import { OpenAPI } from "./internal/auth";
-import { betterAuthSetup } from "./internal/auth/auth.setup";
+import { betterAuthSetup, corsSetup, openapiSetup } from "./internal/setups";
 import { expensesRoute } from "./modules/finance/routes";
 
 const app = new Elysia()
-  .use(
-    cors({
-      origin: env.FRONTEND_URL,
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }),
-  )
+  .use(corsSetup)
   .use(betterAuthSetup)
-  .use(
-    openapi({
-      documentation: {
-        components: await OpenAPI.components,
-        paths: await OpenAPI.getPaths(),
-      },
-      mapJsonSchema: {
-        zod: z.toJSONSchema,
-      },
-    }),
-  )
+  .use(openapiSetup)
   .onError(({ code, error }) => {
     if (code === "VALIDATION") {
       const fieldErrors: Record<string, string[]> = {};
