@@ -23,9 +23,17 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+
+      // Backend aliases
       "@/server/*": ["../server/src/*"],
       "@/internal/*": ["../server/src/internal/*"],
       "@/modules/*": ["../server/src/modules/*"],
+
+      // Frontend aliases
+      "@/components/*": ["./src/components/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/api/*": ["./src/api/*"],
     },
   },
 }

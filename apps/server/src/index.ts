@@ -8,7 +8,6 @@ import { Elysia, status } from "elysia";
 import { env } from "../env";
 import { betterAuthSetup, corsSetup, openapiSetup } from "./internal/setups";
 import { expensesRoute } from "./modules/finance/routes";
-import { testRoute } from "./modules/finance/routes/test.route";
 
 const app = new Elysia()
   .use(corsSetup)
@@ -45,7 +44,7 @@ const app = new Elysia()
       return "data" in responseValue ? responseValue.data : undefined;
     }
   })
-  .group("/api", (app) => app.use(testRoute).use(expensesRoute))
+  .group("/api", (app) => app.use(expensesRoute))
   .listen(env.PORT);
 
 console.log(

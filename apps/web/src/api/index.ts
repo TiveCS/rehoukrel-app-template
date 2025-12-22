@@ -1,8 +1,5 @@
 import { treaty } from "@elysiajs/eden";
-import type { App } from "server";
+import { env } from "env";
+import type { App } from "@/server/index";
 
-const app = treaty<App>("http://localhost:8080");
-
-export async function hello() {
-  return await app.get();
-}
+export const { api } = treaty<App>(env.VITE_API_URL);
