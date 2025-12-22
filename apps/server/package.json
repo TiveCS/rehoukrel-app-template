@@ -12,7 +12,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
-    "db:reset": "bun run db:migrate --reset"
+    "db:drop": "drizzle-kit drop",
+    "db:reset": "bun run db:migrate --reset",
+    "compose:reset": "cd ../.. && bun run compose:reset"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",

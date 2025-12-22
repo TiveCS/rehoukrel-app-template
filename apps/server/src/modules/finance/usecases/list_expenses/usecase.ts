@@ -1,5 +1,11 @@
-import { ok, type Result, validationError } from "@tivecs/core";
-import { and, asc, count, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
+import {
+  createPaginationResponse,
+  ok,
+  type Result,
+  validationError,
+  zodIsoDateSchema,
+} from "@tivecs/core";
+import { and, asc, desc, eq, gte, isNull, lte } from "drizzle-orm";
 import { db } from "@/infra/data";
 import { expenses } from "@/infra/data/schemas";
 import {
@@ -42,13 +48,7 @@ export async function listExpensesUsecase(
 
   const whereClause = and(...conditions);
 
-  const [totalResult] = await db
-    .select({ count: count() })
-    .from(expenses)
-    .where(whereClause);
-
-  const total = totalResult.count;
-  const totalPages = Math.ceil(total / validated.data.pageSize);
+  const totalItems = await db.$count(expenses, whereClause);
 
   const orderByClause =
     validated.data.sortDir === "asc"
@@ -73,11 +73,17 @@ export async function listExpensesUsecase(
     .limit(validated.data.pageSize)
     .offset(offset);
 
-  return ok({
-    items,
-    total,
-    page: validated.data.page,
-    limit: validated.data.pageSize,
-    totalPages,
-  });
+  return ok(
+    createPaginationResponse({
+      page: validated.data.page,
+      pageSize: validated.data.pageSize,
+      totalItems,
+      items: items.map((item) => ({
+        ...item,
+        occurredAt: item.occurredAt.toISOString().split("T")[0],
+        createdAt: item.createdAt.toISOString(),
+        updatedAt: item.updatedAt ? item.updatedAt.toISOString() : null,
+      })),
+    }),
+  );
 }

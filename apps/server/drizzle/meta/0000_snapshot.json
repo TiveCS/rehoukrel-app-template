@@ -1,5 +1,5 @@
 {
-  "id": "6014f4d2-f5cf-49c0-90bc-58e424be4f8c",
+  "id": "59949183-b97e-4b3e-b273-b63f703354d6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,9 +10,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "account_id": {
           "name": "account_id",
@@ -28,7 +29,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -132,9 +133,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "expires_at": {
           "name": "expires_at",
@@ -175,7 +177,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
@@ -232,9 +234,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -298,9 +301,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "identifier": {
           "name": "identifier",

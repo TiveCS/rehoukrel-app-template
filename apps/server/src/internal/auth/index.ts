@@ -4,8 +4,6 @@ import { openAPI } from "better-auth/plugins";
 import { env } from "@/env";
 import { db } from "@/infra/data";
 
-export * from "./auth.setup";
-
 export const auth = betterAuth({
   basePath: "/api/auth",
   trustedOrigins: [env.FRONTEND_URL],
@@ -18,6 +16,11 @@ export const auth = betterAuth({
     transaction: true,
     usePlural: true,
   }),
+  advanced: {
+    database: {
+      generateId: "uuid",
+    },
+  },
   experimental: {
     joins: true,
   },

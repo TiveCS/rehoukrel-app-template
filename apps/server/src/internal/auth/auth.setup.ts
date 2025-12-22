@@ -1,5 +1,6 @@
 import Elysia from "elysia";
 import { auth } from ".";
+import { AuthErrors, failure, toFailureResponseStruct } from "@tivecs/core";
 
 export const authMacro = new Elysia().macro({
   auth: {
@@ -8,7 +9,11 @@ export const authMacro = new Elysia().macro({
         headers,
       });
 
-      if (!session) return status(401);
+      if (!session)
+        return status(
+          401,
+          toFailureResponseStruct(failure(AuthErrors.Unauthorized)),
+        );
 
       return {
         user: session.user,

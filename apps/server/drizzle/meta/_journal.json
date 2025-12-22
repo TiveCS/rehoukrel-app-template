@@ -5,15 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1766283287070,
+      "when": 1766377632308,
       "tag": "0000_init_auth_schema",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1766289127267,
-      "tag": "0001_init_expenses_table",
+      "when": 1766377643026,
+      "tag": "0001_init_expenses_schema",
       "breakpoints": true
     }
   ]

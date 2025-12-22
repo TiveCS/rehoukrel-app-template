@@ -1,4 +1,4 @@
-CREATE TYPE "public"."expense_categories" AS ENUM('food', 'transportation', 'utilities');--> statement-breakpoint
+CREATE TYPE "public"."expense_categories" AS ENUM('food', 'transportation', 'education', 'entertainment', 'health', 'shopping', 'travel', 'investment', 'household', 'utilities', 'others');--> statement-breakpoint
 CREATE TABLE "expenses" (
 	"id" varchar(25) PRIMARY KEY NOT NULL,
 	"note" varchar(50),

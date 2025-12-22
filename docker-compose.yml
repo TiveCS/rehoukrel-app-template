@@ -6,7 +6,7 @@ services:
     container_name: rehoukrel-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: rehoukrel
     ports:
       - "5432:5432"

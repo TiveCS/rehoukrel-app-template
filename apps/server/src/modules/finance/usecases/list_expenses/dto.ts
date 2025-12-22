@@ -1,4 +1,4 @@
-import { paginationRequestSchema } from "@tivecs/core";
+import { type PaginationResponse, paginationRequestSchema } from "@tivecs/core";
 import z from "zod";
 import { ExpenseCategory } from "../../models";
 
@@ -17,18 +17,12 @@ export type ListExpensesUsecaseInput = z.infer<
   typeof listExpensesUsecaseInputSchema
 >;
 
-export type ListExpensesUsecaseOutput = {
-  items: {
-    id: string;
-    note: string | null;
-    category: (typeof ExpenseCategory)[keyof typeof ExpenseCategory];
-    amount: number;
-    occurredAt: Date;
-    createdAt: Date;
-    updatedAt: Date | null;
-  }[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-};
+export type ListExpensesUsecaseOutput = PaginationResponse<{
+  id: string;
+  note: string | null;
+  category: (typeof ExpenseCategory)[keyof typeof ExpenseCategory];
+  amount: number;
+  occurredAt: string;
+  createdAt: string;
+  updatedAt: string | null;
+}>;

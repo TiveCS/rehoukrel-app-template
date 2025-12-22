@@ -1,6 +1,6 @@
 {
-  "id": "77fc6f8e-059a-4a85-b091-c4a58062070c",
-  "prevId": "6014f4d2-f5cf-49c0-90bc-58e424be4f8c",
+  "id": "e296aaeb-8dd3-48ce-a846-ff9da440a829",
+  "prevId": "59949183-b97e-4b3e-b273-b63f703354d6",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -10,9 +10,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "account_id": {
           "name": "account_id",
@@ -28,7 +29,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -132,9 +133,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "expires_at": {
           "name": "expires_at",
@@ -175,7 +177,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
@@ -232,9 +234,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -298,9 +301,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "pg_catalog.gen_random_uuid()"
         },
         "identifier": {
           "name": "identifier",
@@ -449,7 +453,15 @@
       "values": [
         "food",
         "transportation",
-        "utilities"
+        "education",
+        "entertainment",
+        "health",
+        "shopping",
+        "travel",
+        "investment",
+        "household",
+        "utilities",
+        "others"
       ]
     }
   },

@@ -1,8 +1,6 @@
 import {
   paginationRequestSchema,
   paginationResponseSchema,
-  zodIsoDateSchema,
-  zodIsoDatetimeSchema,
 } from "@tivecs/core";
 import z from "zod";
 import { ExpenseCategory } from "../../models";
@@ -11,23 +9,23 @@ export const postExpensesRouteRequestSchema = z.object({
   note: z.string().max(50).optional(),
   category: z.enum(ExpenseCategory),
   amount: z.int().positive(),
-  occurredAt: zodIsoDateSchema,
+  occurredAt: z.iso.date(),
 });
 
 export const putExpensesRouteRequestSchema = z.object({
   note: z.string().max(50).optional(),
   category: z.enum(ExpenseCategory),
   amount: z.int().positive(),
-  occurredAt: zodIsoDateSchema,
+  occurredAt: z.iso.date(),
 });
 
 export const getExpensesRouteRequestSchema = paginationRequestSchema.extend({
-  sortBy: z.enum(["occurredAt", "amount"]),
-  sortDir: z.enum(["asc", "desc"]),
+  sortBy: z.enum(["occurredAt", "amount"]).default("occurredAt"),
+  sortDir: z.enum(["asc", "desc"]).default("desc"),
   minAmount: z.int().positive().optional(),
   maxAmount: z.int().positive().optional(),
-  startDate: zodIsoDateSchema.optional(),
-  endDate: zodIsoDateSchema.optional(),
+  startDate: z.iso.date().optional(),
+  endDate: z.iso.date().optional(),
   category: z.enum(ExpenseCategory).optional(),
 });
 
@@ -52,8 +50,8 @@ export const getExpensesRouteResponseSchema = paginationResponseSchema(
     note: z.string().max(50).nullable(),
     category: z.enum(ExpenseCategory),
     amount: z.int().positive(),
-    occurredAt: zodIsoDateSchema,
-    createdAt: zodIsoDatetimeSchema,
-    updatedAt: zodIsoDatetimeSchema.nullable(),
+    occurredAt: z.iso.date(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime().nullable(),
   }),
 );
