@@ -7,7 +7,14 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
   const headers = getRequestHeaders();
   const session = await authClient.getSession({ fetchOptions: { headers } });
 
-  if (!session) throw redirect({ to: "/signin" });
+  if (!session.data)
+    throw redirect({
+      to: "/signin",
+      search: {
+        redirectTo:
+          typeof window === "undefined" ? undefined : window.location.href,
+      },
+    });
 
   return await next();
 });

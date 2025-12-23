@@ -165,6 +165,7 @@ function isCurrencyMask(opts: {
 
   return (
     mask === "currency" ||
+    mask === "rupiah" ||
     Boolean(pattern && (pattern.includes("$") || pattern.includes("€")))
   );
 }
@@ -200,7 +201,8 @@ type MaskPatternKey =
   | "ipv4"
   | "macAddress"
   | "isbn"
-  | "ein";
+  | "ein"
+  | "rupiah";
 
 const MASK_PATTERNS: Record<MaskPatternKey, MaskPattern> = {
   phone: {
@@ -512,6 +514,19 @@ const MASK_PATTERNS: Record<MaskPatternKey, MaskPattern> = {
     validate: (value) =>
       REGEX_CACHE.ein.test(value.replace(REGEX_CACHE.nonDigits, "")),
   },
+  rupiah: {
+    pattern: "Rp #",
+    transform: (value) => {
+      // Check if there's a minus sign anywhere in the input
+      const isNegative = value.includes("-");
+      const digitsOnly = value.replace(/\D/g, "");
+      return isNegative ? `-${digitsOnly}` : digitsOnly;
+    },
+    validate: (value) => {
+      const num = parseInt(value, 10);
+      return !Number.isNaN(num);
+    },
+  },
 };
 
 function applyMask(opts: {
@@ -524,6 +539,10 @@ function applyMask(opts: {
   const { value, pattern, currency, locale, mask } = opts;
 
   const cleanValue = value;
+
+  if (mask === "rupiah") {
+    return applyRupiahMask(cleanValue);
+  }
 
   if (pattern.includes("$") || pattern.includes("€") || mask === "currency") {
     return applyCurrencyMask({
@@ -653,6 +672,23 @@ function applyPercentageMask(value: string): string {
   return `${result}%`;
 }
 
+function applyRupiahMask(value: string): string {
+  if (!value) return "";
+
+  // Check if negative
+  const isNegative = value.startsWith("-");
+
+  // Remove all non-digit characters to get clean number
+  const digitsOnly = value.replace(/\D/g, "");
+
+  if (!digitsOnly) return isNegative ? "Rp -" : "";
+
+  // Format with dot as thousands separator
+  const formatted = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  return isNegative ? `Rp -${formatted}` : `Rp ${formatted}`;
+}
+
 function getUnmaskedValue(opts: {
   value: string;
   currency?: string;
@@ -740,6 +776,11 @@ function getCurrencyCaretPosition(opts: {
         }
       }
     }
+  }
+
+  if (mask === "rupiah") {
+    // For rupiah, cursor goes to the end of the number
+    return newValue.length;
   }
 
   if (mask === "currency") {
@@ -929,10 +970,10 @@ function MaskInput(props: MaskInputProps) {
   }, [value, maskPattern, withoutMask, transformOpts, mask]);
 
   const tokenCount = React.useMemo(() => {
-    if (!maskPattern || CURRENCY_PERCENTAGE_SYMBOLS.test(maskPattern.pattern))
+    if (!maskPattern || CURRENCY_PERCENTAGE_SYMBOLS.test(maskPattern.pattern) || mask === "rupiah")
       return undefined;
     return maskPattern.pattern.match(REGEX_CACHE.hashPattern)?.length ?? 0;
-  }, [maskPattern]);
+  }, [maskPattern, mask]);
 
   const calculatedMaxLength = tokenCount
     ? maskPattern?.pattern.length
@@ -941,6 +982,10 @@ function MaskInput(props: MaskInputProps) {
   const calculatedInputMode = React.useMemo(() => {
     if (inputMode) return inputMode;
     if (!maskPattern) return undefined;
+
+    if (mask === "rupiah") {
+      return "numeric";
+    }
 
     if (mask === "currency" || mask === "percentage" || mask === "ipv4") {
       return "decimal";
@@ -1045,7 +1090,7 @@ function MaskInput(props: MaskInputProps) {
             ...transformOpts,
           });
 
-          if (CURRENCY_PERCENTAGE_SYMBOLS.test(maskPattern.pattern)) {
+          if (CURRENCY_PERCENTAGE_SYMBOLS.test(maskPattern.pattern) || mask === "rupiah") {
             newCursorPosition = getCurrencyCaretPosition({
               newValue,
               mask,
@@ -1331,6 +1376,7 @@ function MaskInput(props: MaskInputProps) {
         if (
           mask === "currency" ||
           mask === "percentage" ||
+          mask === "rupiah" ||
           maskPattern.pattern.includes("$") ||
           maskPattern.pattern.includes("€") ||
           maskPattern.pattern.includes("%")
@@ -1396,6 +1442,7 @@ function MaskInput(props: MaskInputProps) {
         if (
           mask === "currency" ||
           mask === "percentage" ||
+          mask === "rupiah" ||
           maskPattern.pattern.includes("$") ||
           maskPattern.pattern.includes("€") ||
           maskPattern.pattern.includes("%")
@@ -1508,6 +1555,7 @@ export {
   applyMask,
   applyCurrencyMask,
   applyPercentageMask,
+  applyRupiahMask,
   getUnmaskedValue,
   toUnmaskedIndex,
   fromUnmaskedIndex,

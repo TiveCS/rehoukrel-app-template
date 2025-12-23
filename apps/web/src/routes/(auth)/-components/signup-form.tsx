@@ -66,7 +66,7 @@ export function SignUpForm({
   const onLoginWithGithub = async () => {
     await authClient.signIn.social({
       provider: "github",
-      callbackURL: `${window.location.origin}/app`,
+      callbackURL: `${window.location.origin}/home`,
       fetchOptions: {
         onError({ error }) {
           toast.error(error.message);
@@ -78,7 +78,7 @@ export function SignUpForm({
   const onLoginWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: `${window.location.origin}/app`,
+      callbackURL: `${window.location.origin}/home`,
       fetchOptions: {
         onError({ error }) {
           toast.error(error.message);

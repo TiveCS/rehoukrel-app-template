@@ -21,7 +21,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
@@ -38,7 +38,6 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const form = useForm({
     validators: {
@@ -58,7 +57,7 @@ export function LoginForm({
   const onLoginWithGithub = async () => {
     await authClient.signIn.social({
       provider: "github",
-      callbackURL: `${window.location.origin}/app`,
+      callbackURL: `${window.location.origin}/home`,
       fetchOptions: {
         onError: ({ error }) => {
           toast.error(error.message);
@@ -70,7 +69,7 @@ export function LoginForm({
   const onLoginWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: `${window.location.origin}/app`,
+      callbackURL: `${window.location.origin}/home`,
       fetchOptions: {
         onError: ({ error }) => {
           toast.error(error.message);
@@ -86,14 +85,11 @@ export function LoginForm({
     await authClient.signIn.email({
       email,
       password,
-      callbackURL: "/app",
       rememberMe: false,
+      callbackURL: `${window.location.origin}/home`,
       fetchOptions: {
         onError: ({ error }) => {
           toast.error(error.message);
-        },
-        onSuccess: () => {
-          navigate({ to: "/app" });
         },
       },
     });
@@ -195,6 +191,10 @@ export function LoginForm({
                         autoComplete="off"
                         required
                       />
+
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
                     </Field>
                   );
                 }}
