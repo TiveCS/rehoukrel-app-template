@@ -9,6 +9,7 @@ export const auth = betterAuth({
   trustedOrigins: [env.FRONTEND_URL],
   emailAndPassword: {
     enabled: true,
+    autoSignIn: false,
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -33,6 +34,7 @@ export const auth = betterAuth({
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+      prompt: "select_account",
     },
     github: {
       clientId: env.GITHUB_CLIENT_ID,
