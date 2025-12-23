@@ -7,9 +7,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
   const headers = getRequestHeaders();
   const session = await authClient.getSession({ fetchOptions: { headers } });
 
-  if (!session) {
-    throw redirect({ to: "/signin" });
-  }
+  if (!session) throw redirect({ to: "/signin" });
 
   return await next();
 });

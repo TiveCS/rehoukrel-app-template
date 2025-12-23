@@ -26,14 +26,21 @@ import { useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
 
-const loginWithEmailSchema = z.object({
+const signUpWithEmailSchema = z.object({
   email: z.email(),
-  password: z.string().min(1, "Password is required"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name must be less than 255 characters"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must be at least 8 characters"),
 });
 
-type LoginWithEmailValues = z.infer<typeof loginWithEmailSchema>;
+type SignUpWithEmailValues = z.infer<typeof signUpWithEmailSchema>;
 
-export function LoginForm({
+export function SignUpForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -42,15 +49,16 @@ export function LoginForm({
 
   const form = useForm({
     validators: {
-      onSubmit: loginWithEmailSchema,
+      onSubmit: signUpWithEmailSchema,
     },
     defaultValues: {
       email: "",
       password: "",
+      name: "",
     },
     onSubmit: async ({ value }) => {
       setLoading(true);
-      await onLoginWithEmail(value);
+      await onSignUpWithEmail(value);
       setLoading(false);
     },
   });
@@ -59,11 +67,11 @@ export function LoginForm({
     await authClient.signIn.social({
       provider: "github",
       fetchOptions: {
-        onError: ({ error }) => {
+        onError({ error }) {
           toast.error(error.message);
         },
-        onSuccess: () => {
-          navigate({ to: "/app" });
+        onSuccess() {
+          navigate({ to: "/signin" });
         },
       },
     });
@@ -73,34 +81,37 @@ export function LoginForm({
     await authClient.signIn.social({
       provider: "google",
       fetchOptions: {
-        onError: ({ error }) => {
+        onError({ error }) {
           toast.error(error.message);
         },
-        onSuccess: () => {
-          navigate({ to: "/app" });
+        onSuccess() {
+          navigate({ to: "/signin" });
         },
       },
     });
   };
 
-  const onLoginWithEmail = async ({
+  const onSignUpWithEmail = async ({
     email,
     password,
-  }: LoginWithEmailValues) => {
-    await authClient.signIn.email({
+    name,
+  }: SignUpWithEmailValues) => {
+    setLoading(true);
+    await authClient.signUp.email({
       email,
       password,
-      callbackURL: "/app",
-      rememberMe: false,
+      name,
       fetchOptions: {
-        onError: ({ error }) => {
+        onError({ error }) {
           toast.error(error.message);
         },
-        onSuccess: () => {
-          navigate({ to: "/app" });
+        onSuccess() {
+          toast.success("Account created successfully! Please sign in.");
+          navigate({ to: "/signin" });
         },
       },
     });
+    setLoading(false);
   };
 
   return (
@@ -127,7 +138,7 @@ export function LoginForm({
                   onClick={onLoginWithGithub}
                 >
                   <GitHubLogo />
-                  Login with GitHub
+                  Sign Up with GitHub
                 </Button>
                 <Button
                   variant="outline"
@@ -135,12 +146,37 @@ export function LoginForm({
                   onClick={onLoginWithGoogle}
                 >
                   <GoogleLogo />
-                  Login with Google
+                  Sign Up with Google
                 </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
               </FieldSeparator>
+
+              <form.Field name="name">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="John Wok"
+                        autoComplete="off"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
               <form.Field name="email">
                 {(field) => {
@@ -175,17 +211,7 @@ export function LoginForm({
 
                   return (
                     <Field data-invalid={isInvalid}>
-                      <div className="flex items-center">
-                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-
-                        <Link
-                          to="/forgot-password"
-                          className="ml-auto text-sm underline-offset-4 hover:underline"
-                          tabIndex={-1}
-                        >
-                          Forgot your password?
-                        </Link>
-                      </div>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
 
                       <Input
                         id={field.name}
@@ -207,10 +233,10 @@ export function LoginForm({
               <Field>
                 <Button type="submit" disabled={loading}>
                   {loading && <Spinner className="mr-2" />}
-                  Login
+                  Sign Up
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/signup">Sign up</Link>
+                  Already have an account? <Link to="/signin">Login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
