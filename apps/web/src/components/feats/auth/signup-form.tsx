@@ -66,12 +66,10 @@ export function SignUpForm({
   const onLoginWithGithub = async () => {
     await authClient.signIn.social({
       provider: "github",
+      callbackURL: `${window.location.origin}/app`,
       fetchOptions: {
         onError({ error }) {
           toast.error(error.message);
-        },
-        onSuccess() {
-          navigate({ to: "/signin" });
         },
       },
     });
@@ -80,12 +78,10 @@ export function SignUpForm({
   const onLoginWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
+      callbackURL: `${window.location.origin}/app`,
       fetchOptions: {
         onError({ error }) {
           toast.error(error.message);
-        },
-        onSuccess() {
-          navigate({ to: "/signin" });
         },
       },
     });

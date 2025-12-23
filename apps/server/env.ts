@@ -9,6 +9,12 @@ export const env = createEnv({
     PORT: z.coerce.number().default(8080),
     DATABASE_URL: z.url(),
     FRONTEND_URL: z.url(),
+
+    GOOGLE_CLIENT_ID: z.string().nonempty(),
+    GOOGLE_CLIENT_SECRET: z.string().nonempty(),
+
+    GITHUB_CLIENT_ID: z.string().nonempty(),
+    GITHUB_CLIENT_SECRET: z.string().nonempty(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

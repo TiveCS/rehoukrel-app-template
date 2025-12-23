@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { authMiddleware } from "@/middlewares/auth";
-import { useSession } from "@/hooks/use-session";
-import { authClient } from "@/lib/auth";
 import { LogoutButton } from "@/components/feats/auth/logout-button";
+import { useSession } from "@/hooks/use-session";
+import { authMiddleware } from "@/middlewares/auth";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(app)/app/")({
   component: RouteComponent,
