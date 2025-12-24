@@ -673,15 +673,14 @@ function applyPercentageMask(value: string): string {
 }
 
 function applyRupiahMask(value: string): string {
-  if (!value) return "";
-
   // Check if negative
   const isNegative = value.startsWith("-");
 
   // Remove all non-digit characters to get clean number
   const digitsOnly = value.replace(/\D/g, "");
 
-  if (!digitsOnly) return isNegative ? "Rp -" : "";
+  // If no digits, always show "Rp 0"
+  if (!digitsOnly) return "Rp 0";
 
   // Format with dot as thousands separator
   const formatted = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ".");

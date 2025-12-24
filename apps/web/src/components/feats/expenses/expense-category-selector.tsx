@@ -1,3 +1,4 @@
+import { capitalize } from "@tivecs/core";
 import type { ComponentProps } from "react";
 import {
   Select,
@@ -7,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExpenseCategory } from "@/server/modules/finance/models";
-import { capitalize } from "@tivecs/core";
 
 const expenseCategories = Object.values(ExpenseCategory).map((category) => ({
   value: category,
@@ -28,10 +28,11 @@ export function ExpenseCategorySelector({
   return (
     <Select {...selectProps}>
       <SelectTrigger {...triggerProps}>
-        <SelectValue placeholder="Select expense category" />
+        <SelectValue placeholder="All categories" />
       </SelectTrigger>
 
       <SelectContent {...contentProps}>
+        <SelectItem value="__all__">All categories</SelectItem>
         {expenseCategories.map((category) => (
           <SelectItem key={category.value} value={category.value}>
             {category.label}

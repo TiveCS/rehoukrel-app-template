@@ -1,6 +1,7 @@
 import {
   failureResultResponseSchema,
   HttpStatus,
+  toFailureResponseStruct,
   zodIsoDateSchema,
 } from "@tivecs/core";
 import Elysia from "elysia";
@@ -41,7 +42,7 @@ export const expensesRoute = new Elysia({
       });
 
       if (!listExpensesResult.success) {
-        return listExpensesResult;
+        return toFailureResponseStruct(listExpensesResult);
       }
 
       return listExpensesResult.data;

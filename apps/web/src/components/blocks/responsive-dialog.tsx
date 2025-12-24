@@ -1,3 +1,6 @@
+import type { ComponentProps } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +19,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
-import { useState } from "react";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { Button } from "../ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export type ResponsiveDialogProps = {
   open: boolean;
@@ -29,6 +28,12 @@ export type ResponsiveDialogProps = {
   description?: string;
   children: React.ReactNode;
   drawerClose?: React.ReactNode;
+  dialogProps?: ComponentProps<typeof Dialog>;
+  dialogTriggerProps?: ComponentProps<typeof DialogTrigger>;
+  dialogContentProps?: ComponentProps<typeof DialogContent>;
+  drawerProps?: ComponentProps<typeof Drawer>;
+  drawerTriggerProps?: ComponentProps<typeof DrawerTrigger>;
+  drawerContentProps?: ComponentProps<typeof DrawerContent>;
 };
 
 export function ResponsiveDialog({
@@ -39,14 +44,22 @@ export function ResponsiveDialog({
   open,
   triggerComponent,
   drawerClose,
+  dialogProps,
+  dialogTriggerProps,
+  dialogContentProps,
+  drawerProps,
+  drawerTriggerProps,
+  drawerContentProps,
 }: ResponsiveDialogProps) {
   const isMobile = useIsMobile();
 
   if (!isMobile) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild>{triggerComponent}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+      <Dialog open={open} onOpenChange={onOpenChange} {...dialogProps}>
+        <DialogTrigger asChild {...dialogTriggerProps}>
+          {triggerComponent}
+        </DialogTrigger>
+        <DialogContent {...dialogContentProps}>
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && (
@@ -61,9 +74,11 @@ export function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerTrigger asChild>{triggerComponent}</DrawerTrigger>
-      <DrawerContent>
+    <Drawer open={open} onOpenChange={onOpenChange} {...drawerProps}>
+      <DrawerTrigger asChild {...drawerTriggerProps}>
+        {triggerComponent}
+      </DrawerTrigger>
+      <DrawerContent {...drawerContentProps}>
         <DrawerHeader className="text-left">
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
@@ -71,7 +86,7 @@ export function ResponsiveDialog({
 
         {children}
 
-        <DrawerFooter className="pt-2">
+        <DrawerFooter className="pt-4 pb-8">
           <DrawerClose asChild>
             {drawerClose ? (
               drawerClose

@@ -1,6 +1,7 @@
 import {
   paginationRequestSchema,
   paginationResponseSchema,
+  paginationResponseSchemaFactory,
 } from "@tivecs/core";
 import z from "zod";
 import { ExpenseCategory } from "../../models";
@@ -44,7 +45,7 @@ export const deleteExpensesRouteResponseSchema = z.object({
   deletedAt: z.iso.datetime(),
 });
 
-export const getExpensesRouteResponseSchema = paginationResponseSchema(
+export const getExpensesRouteResponseSchema = paginationResponseSchemaFactory(
   z.object({
     id: z.cuid2(),
     note: z.string().max(50).nullable(),
