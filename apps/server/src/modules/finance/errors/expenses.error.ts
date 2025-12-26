@@ -1,18 +1,36 @@
-import { type ErrorModel, HttpStatus } from "@tivecs/core";
+import { HttpStatus } from "@tivecs/core";
+import { DomainError } from "@/internal/common";
 
-export type ExpenseError = ErrorModel & {
-  code: `expenses.${string}`;
-};
+export class ExpenseNotFoundError extends DomainError {
+  statusCode: HttpStatus = HttpStatus.NotFound;
+  errorCode: string = "expenses.not_found";
 
+  constructor() {
+    super("The requested expense not found");
+  }
+}
+
+export class ExpenseNotOwnedError extends DomainError {
+  statusCode: HttpStatus = HttpStatus.Forbidden;
+  errorCode: string = "expenses.not_owned";
+
+  constructor() {
+    super("The requested expense does not belong to the user");
+  }
+}
+
+export class ExpenseDeletedError extends DomainError {
+  statusCode: HttpStatus = HttpStatus.Gone;
+  errorCode: string = "expenses.deleted";
+
+  constructor() {
+    super("The requested expense has been deleted");
+  }
+}
+
+// Export as namespace for convenient usage
 export const ExpenseErrors = {
-  NotFound: {
-    code: "expenses.not_found",
-    description: "The requested expense was not found.",
-    statusCode: HttpStatus.NotFound,
-  },
-  NotOwned: {
-    code: "expenses.not_owned",
-    description: "The expense does not belong to the user.",
-    statusCode: HttpStatus.Forbidden,
-  },
-} satisfies Record<string, ExpenseError>;
+  NotFound: ExpenseNotFoundError,
+  NotOwned: ExpenseNotOwnedError,
+  Deleted: ExpenseDeletedError,
+} as const;

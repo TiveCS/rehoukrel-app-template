@@ -1,10 +1,4 @@
-import {
-  createPaginationResponse,
-  ok,
-  type Result,
-  validationError,
-  zodIsoDateSchema,
-} from "@tivecs/core";
+import { createPaginationResponse } from "@tivecs/core";
 import { and, asc, desc, eq, gte, isNull, lte } from "drizzle-orm";
 import { db } from "@/infra/data";
 import { expenses } from "@/infra/data/schemas";
@@ -16,34 +10,32 @@ import {
 
 export async function listExpensesUsecase(
   input: ListExpensesUsecaseInput,
-): Promise<Result<ListExpensesUsecaseOutput>> {
-  const validated = listExpensesUsecaseInputSchema.safeParse(input);
-
-  if (!validated.success) return validationError(validated.error);
+): Promise<ListExpensesUsecaseOutput> {
+  const validated = listExpensesUsecaseInputSchema.parse(input);
 
   const conditions = [
-    eq(expenses.ownerId, validated.data.ownerId),
+    eq(expenses.ownerId, validated.ownerId),
     isNull(expenses.deletedAt),
   ];
 
-  if (validated.data.category) {
-    conditions.push(eq(expenses.category, validated.data.category));
+  if (validated.category) {
+    conditions.push(eq(expenses.category, validated.category));
   }
 
-  if (validated.data.minAmount) {
-    conditions.push(gte(expenses.amount, validated.data.minAmount));
+  if (validated.minAmount) {
+    conditions.push(gte(expenses.amount, validated.minAmount));
   }
 
-  if (validated.data.maxAmount) {
-    conditions.push(lte(expenses.amount, validated.data.maxAmount));
+  if (validated.maxAmount) {
+    conditions.push(lte(expenses.amount, validated.maxAmount));
   }
 
-  if (validated.data.startDate) {
-    conditions.push(gte(expenses.occurredAt, validated.data.startDate));
+  if (validated.startDate) {
+    conditions.push(gte(expenses.occurredAt, validated.startDate));
   }
 
-  if (validated.data.endDate) {
-    conditions.push(lte(expenses.occurredAt, validated.data.endDate));
+  if (validated.endDate) {
+    conditions.push(lte(expenses.occurredAt, validated.endDate));
   }
 
   const whereClause = and(...conditions);
@@ -51,11 +43,11 @@ export async function listExpensesUsecase(
   const totalItems = await db.$count(expenses, whereClause);
 
   const orderByClause =
-    validated.data.sortDir === "asc"
-      ? asc(expenses[validated.data.sortBy])
-      : desc(expenses[validated.data.sortBy]);
+    validated.sortDir === "asc"
+      ? asc(expenses[validated.sortBy])
+      : desc(expenses[validated.sortBy]);
 
-  const offset = (validated.data.page - 1) * validated.data.pageSize;
+  const offset = (validated.page - 1) * validated.pageSize;
 
   const items = await db
     .select({
@@ -70,20 +62,18 @@ export async function listExpensesUsecase(
     .from(expenses)
     .where(whereClause)
     .orderBy(orderByClause)
-    .limit(validated.data.pageSize)
+    .limit(validated.pageSize)
     .offset(offset);
 
-  return ok(
-    createPaginationResponse({
-      page: validated.data.page,
-      pageSize: validated.data.pageSize,
-      totalItems,
-      items: items.map((item) => ({
-        ...item,
-        occurredAt: item.occurredAt.toISOString().split("T")[0],
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt ? item.updatedAt.toISOString() : null,
-      })),
-    }),
-  );
+  return createPaginationResponse({
+    page: validated.page,
+    pageSize: validated.pageSize,
+    totalItems,
+    items: items.map((item) => ({
+      ...item,
+      occurredAt: item.occurredAt.toISOString().split("T")[0],
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt ? item.updatedAt.toISOString() : null,
+    })),
+  });
 }

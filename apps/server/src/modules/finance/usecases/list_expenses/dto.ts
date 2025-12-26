@@ -1,8 +1,10 @@
-import { type PaginationResponse, paginationRequestSchema } from "@tivecs/core";
+import type { PaginationResponse } from "@tivecs/core";
 import z from "zod";
 import { ExpenseCategory } from "../../models";
 
-export const listExpensesUsecaseInputSchema = paginationRequestSchema.extend({
+export const listExpensesUsecaseInputSchema = z.object({
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().default(10),
   sortBy: z.enum(["occurredAt", "amount"]),
   sortDir: z.enum(["asc", "desc"]),
   minAmount: z.number().int().positive().optional(),

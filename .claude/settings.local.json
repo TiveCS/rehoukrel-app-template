@@ -6,7 +6,9 @@
       "Bash(git push)",
       "Bash(bun run dev)",
       "WebFetch(domain:ui.shadcn.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(find:*)",
+      "WebFetch(domain:elysiajs.com)"
     ]
   }
 }

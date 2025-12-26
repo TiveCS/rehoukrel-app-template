@@ -1,8 +1,11 @@
-import { failure, ok, type Result, validationError } from "@tivecs/core";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/infra/data";
 import { expenses } from "@/infra/data/schemas";
-import { ExpenseErrors } from "../../errors";
+import {
+  ExpenseNotFoundError,
+  ExpenseNotOwnedError,
+  ExpenseDeletedError,
+} from "../../errors";
 import {
   type DeleteExpenseUsecaseInput,
   type DeleteExpenseUsecaseOutput,
@@ -11,28 +14,26 @@ import {
 
 export async function deleteExpenseUsecase(
   input: DeleteExpenseUsecaseInput,
-): Promise<Result<DeleteExpenseUsecaseOutput>> {
-  const validated = deleteExpenseUsecaseInputSchema.safeParse(input);
-
-  if (!validated.success) return validationError(validated.error);
+): Promise<DeleteExpenseUsecaseOutput> {
+  const validated = deleteExpenseUsecaseInputSchema.parse(input);
 
   const [expense] = await db
     .select()
     .from(expenses)
     .where(
       and(
-        eq(expenses.id, validated.data.expenseId),
+        eq(expenses.id, validated.expenseId),
         isNull(expenses.deletedAt),
       ),
     )
     .limit(1);
 
   if (!expense) {
-    return failure(ExpenseErrors.NotFound);
+    throw new ExpenseNotFoundError();
   }
 
-  if (expense.ownerId !== validated.data.ownerId) {
-    return failure(ExpenseErrors.NotOwned);
+  if (expense.ownerId !== validated.ownerId) {
+    throw new ExpenseNotOwnedError();
   }
 
   const deletedAt = new Date();
@@ -42,14 +43,14 @@ export async function deleteExpenseUsecase(
     .set({
       deletedAt,
     })
-    .where(eq(expenses.id, validated.data.expenseId))
+    .where(eq(expenses.id, validated.expenseId))
     .returning({
       id: expenses.id,
       deletedAt: expenses.deletedAt,
     });
 
-  return ok({
+  return {
     id: result[0].id,
     deletedAt: result[0].deletedAt!,
-  });
+  };
 }

@@ -1,6 +1,5 @@
 import { api } from "@/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CommonErrors, isFailureResponseStruct } from "@tivecs/core";
 
 export function useDeleteExpense() {
   const queryClient = useQueryClient();
@@ -11,21 +10,13 @@ export function useDeleteExpense() {
         .expenses({ id })
         .delete(undefined, { fetch: { credentials: "include" } });
 
-      if (!response) throw new Error("Failed to delete expense");
-
-      if (response.error && isFailureResponseStruct(response.error.value)) {
-        if (response.error.value.code === CommonErrors.ValidationError.code) {
-          throw new Error(
-            `Validation error: ${JSON.stringify(response.error.value.fieldErrors)}`,
-          );
-        }
-
+      if (response.error) {
         throw new Error(
-          `Failed to delete expense: ${response.error.value.code}`,
+          response.error.value?.error || "Failed to delete expense",
         );
       }
 
-      return response.data;
+      return response.data!;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });

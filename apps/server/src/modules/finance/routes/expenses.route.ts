@@ -1,11 +1,11 @@
-import {
-  failureResultResponseSchema,
-  HttpStatus,
-  toFailureResponseStruct,
-  zodIsoDateSchema,
-} from "@tivecs/core";
+import { HttpStatus } from "@tivecs/core";
 import Elysia from "elysia";
 import { authMacro } from "@/internal/setups";
+import {
+  ExpenseDeletedError,
+  ExpenseNotFoundError,
+  ExpenseNotOwnedError,
+} from "../errors";
 import {
   deleteExpenseUsecase,
   editExpenseUsecase,
@@ -26,110 +26,92 @@ export const expensesRoute = new Elysia({
   tags: ["Expenses"],
   prefix: "/expenses",
 })
+  .error({
+    ExpenseNotFound: ExpenseNotFoundError,
+    ExpenseNotOwned: ExpenseNotOwnedError,
+    ExpenseDeleted: ExpenseDeletedError,
+  })
   .use(authMacro)
   .get(
     "/",
     async ({ query, user }) => {
-      const listExpensesResult = await listExpensesUsecase({
+      const result = await listExpensesUsecase({
         ...query,
-        startDate: query.startDate
-          ? zodIsoDateSchema.decode(query.startDate)
-          : undefined,
-        endDate: query.endDate
-          ? zodIsoDateSchema.decode(query.endDate)
-          : undefined,
+        startDate: query.startDate ? new Date(query.startDate) : undefined,
+        endDate: query.endDate ? new Date(query.endDate) : undefined,
         ownerId: user.id,
       });
 
-      if (!listExpensesResult.success) {
-        return toFailureResponseStruct(listExpensesResult);
-      }
-
-      return listExpensesResult.data;
+      return result;
     },
     {
       auth: true,
       query: getExpensesRouteRequestSchema,
       response: {
         [HttpStatus.Ok]: getExpensesRouteResponseSchema,
-        [HttpStatus.BadRequest]: failureResultResponseSchema,
       },
     },
   )
   .post(
     "/",
-    async ({ body, user }) => {
-      const newExpenseResult = await newExpenseUsecase({
+    async ({ body, user, set }) => {
+      const result = await newExpenseUsecase({
         ...body,
-        occurredAt: zodIsoDateSchema.decode(body.occurredAt),
+        occurredAt: new Date(body.occurredAt),
         ownerId: user.id,
       });
 
-      if (!newExpenseResult.success) {
-        return newExpenseResult;
-      }
-
-      return newExpenseResult.data;
+      set.status = 201;
+      return result;
     },
     {
       auth: true,
       body: postExpensesRouteRequestSchema,
       response: {
         [HttpStatus.Created]: postExpensesRouteResponseSchema,
-        [HttpStatus.BadRequest]: failureResultResponseSchema,
       },
     },
   )
   .put(
     "/:id",
     async ({ params: { id }, body, user }) => {
-      const editExpenseResult = await editExpenseUsecase({
+      const result = await editExpenseUsecase({
         ...body,
-        occurredAt: zodIsoDateSchema.decode(body.occurredAt),
+        occurredAt: new Date(body.occurredAt),
         expenseId: id,
         ownerId: user.id,
       });
 
-      if (!editExpenseResult.success) {
-        return editExpenseResult;
-      }
-
       return {
-        ...editExpenseResult.data,
-        updatedAt: editExpenseResult.data.updatedAt.toISOString(),
+        ...result,
+        updatedAt: result.updatedAt.toISOString(),
       };
     },
     {
       auth: true,
       body: putExpensesRouteRequestSchema,
       response: {
-        [HttpStatus.Ok]: putExpensesRouteResponseSchema,
-        [HttpStatus.BadRequest]: failureResultResponseSchema,
+        200: putExpensesRouteResponseSchema,
       },
     },
   )
   .delete(
     "/:id",
     async ({ params: { id }, user }) => {
-      const deleteExpenseResult = await deleteExpenseUsecase({
+      const result = await deleteExpenseUsecase({
         expenseId: id,
         ownerId: user.id,
       });
 
-      if (!deleteExpenseResult.success) {
-        return deleteExpenseResult;
-      }
-
       return {
-        ...deleteExpenseResult.data,
-        deletedAt: deleteExpenseResult.data.deletedAt.toISOString(),
+        ...result,
+        deletedAt: result.deletedAt.toISOString(),
       };
     },
     {
       auth: true,
       response: {
-        [HttpStatus.Ok]: deleteExpensesRouteResponseSchema,
-        [HttpStatus.BadRequest]: failureResultResponseSchema,
+        200: deleteExpensesRouteResponseSchema,
       },
     },
   );

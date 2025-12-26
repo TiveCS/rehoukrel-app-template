@@ -1,30 +1,31 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ExpenseCategory } from "@/server/modules/finance/models";
 
-type CreateExpenseInput = {
+type EditExpenseInput = {
+  id: string;
   amount: number;
   occurredAt: string; // ISO date string
   category: ExpenseCategory;
   note?: string;
 };
 
-export function useCreateExpense() {
+export function useEditExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: CreateExpenseInput) => {
-      const response = await api.expenses.post(input, {
+    mutationFn: async ({ id, ...input }: EditExpenseInput) => {
+      const response = await api.expenses({ id }).put(input, {
         fetch: { credentials: "include" },
       });
 
       if (response.error) {
         throw new Error(
-          response.error.value?.error || "Failed to create expense",
+          response.error.value?.error || "Failed to edit expense",
         );
       }
 
-      return response.data;
+      return response.data!;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });

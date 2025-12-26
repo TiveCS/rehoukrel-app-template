@@ -1,8 +1,7 @@
-import { failure, ok, type Result, validationError } from "@tivecs/core";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/infra/data";
 import { expenses } from "@/infra/data/schemas";
-import { ExpenseErrors } from "../../errors";
+import { ExpenseNotFoundError, ExpenseNotOwnedError } from "../../errors";
 import {
   type EditExpenseUsecaseInput,
   type EditExpenseUsecaseOutput,
@@ -11,47 +10,45 @@ import {
 
 export async function editExpenseUsecase(
   input: EditExpenseUsecaseInput,
-): Promise<Result<EditExpenseUsecaseOutput>> {
-  const validated = editExpenseUsecaseInputSchema.safeParse(input);
-
-  if (!validated.success) return validationError(validated.error);
+): Promise<EditExpenseUsecaseOutput> {
+  const validated = editExpenseUsecaseInputSchema.parse(input);
 
   const [expense] = await db
     .select()
     .from(expenses)
     .where(
       and(
-        eq(expenses.id, validated.data.expenseId),
+        eq(expenses.id, validated.expenseId),
         isNull(expenses.deletedAt),
       ),
     )
     .limit(1);
 
   if (!expense) {
-    return failure(ExpenseErrors.NotFound);
+    throw new ExpenseNotFoundError();
   }
 
-  if (expense.ownerId !== validated.data.ownerId) {
-    return failure(ExpenseErrors.NotOwned);
+  if (expense.ownerId !== validated.ownerId) {
+    throw new ExpenseNotOwnedError();
   }
 
   const result = await db
     .update(expenses)
     .set({
-      note: validated.data.note,
-      category: validated.data.category,
-      amount: validated.data.amount,
-      occurredAt: validated.data.occurredAt,
+      note: validated.note,
+      category: validated.category,
+      amount: validated.amount,
+      occurredAt: validated.occurredAt,
       updatedAt: new Date(),
     })
-    .where(eq(expenses.id, validated.data.expenseId))
+    .where(eq(expenses.id, validated.expenseId))
     .returning({
       id: expenses.id,
       updatedAt: expenses.updatedAt,
     });
 
-  return ok({
+  return {
     id: result[0].id,
     updatedAt: result[0].updatedAt!,
-  });
+  };
 }
